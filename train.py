@@ -12,6 +12,9 @@ from PIL import Image
 
 st.title("Train Few Shot classification models in Browser")
 col1, col2 = st.columns(2)
+modelAvailable = False
+test_box = None
+image = None
 
 
 def load_img(image):
@@ -118,11 +121,16 @@ train = st.checkbox("Train model")
 if train is True:
     train_model()
 
-checkpoint = torch.load("Few_shot_model.pth.tar", map_location=torch.device('cpu'))
-model.load_state_dict(checkpoint['model_state_dict'])
-optimizer.load_state_dict(checkpoint['optim_state_dict'])
-episode_num = checkpoint['Episode_num']
-loss = checkpoint['loss']
+try:
+    checkpoint = torch.load("Few_shot_model.pth.tar", map_location=torch.device('cpu'))
+    model.load_state_dict(checkpoint['model_state_dict'])
+    optimizer.load_state_dict(checkpoint['optim_state_dict'])
+    episode_num = checkpoint['Episode_num']
+    loss = checkpoint['loss']
+    modelAvailable = True
+except:
+    print("Model not available")
+    modelAvailable = False
 
 
 def evaluate():
@@ -137,11 +145,13 @@ def evaluate():
         st.write(f"Model tested on {len(test_loader)} tasks with Accuracy of {correct*100/total} %")
 
 
-test_box = st.checkbox("Evaluate Model on Test set")
+if modelAvailable:
+    test_box = st.checkbox("Evaluate Model on Test set")
+    image = st.file_uploader("**Model's Output for a single image**")
+
 if test_box is True:
     evaluate()
 
-image = st.file_uploader("**Model's Output for a single image**")
 if image is not None:
     image1 = load_img(image)
     # print(image1.shape)
