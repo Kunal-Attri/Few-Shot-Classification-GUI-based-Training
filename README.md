@@ -77,10 +77,10 @@
 	<img src="https://github.com/Kunal-Attri/Few-Shot-Classification-GUI-based-Training/blob/main/images/evaluation_image.png?raw=true"><br><br>
 
 ## References
-	- [Few Shot Classification](https://neptune.ai/blog/understanding-few-shot-learning-in-computer-vision)
-	- [Prototypical Networks](https://towardsdatascience.com/few-shot-learning-with-prototypical-networks-87949de03ccd)
-	- [Resnet18](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet18.html)
-	- [PyTorch](https://pytorch.org/)
-	- [Omniglot Data set](https://github.com/brendenlake/omniglot)
-	- [Streamlit](https://streamlit.io/)
-	- [Matplotlib](https://matplotlib.org/)
+- [Few Shot Classification](https://neptune.ai/blog/understanding-few-shot-learning-in-computer-vision)
+- [Prototypical Networks](https://towardsdatascience.com/few-shot-learning-with-prototypical-networks-87949de03ccd)
+- [Resnet18](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet18.html)
+- [PyTorch](https://pytorch.org/)
+- [Omniglot Data set](https://github.com/brendenlake/omniglot)
+- [Streamlit](https://streamlit.io/)
+- [Matplotlib](https://matplotlib.org/)
