@@ -59,12 +59,11 @@ n_query = col2.number_input("Count of Images in each Class of Query Set", step=1
 train_tasks = col1.number_input("Episodes in the Train Set", step=1)
 test_tasks = col1.number_input("Episodes in the Test Set", step=1)
 learning_rate = 3e-4
-# print(n_way, split_ratio, n_shot)
+
 try:
     data = Datasets.ImageFolder(root=data_path, transform=transform)
     split_list = [int(split_ratio * len(data)), len(data) - int(split_ratio * len(data))]
     train_set, test_set = torch.utils.data.random_split(dataset=data, lengths=split_list)
-    # print(split_list, len(train_set))
 
     train_set.get_labels = lambda: [i[1] for i in train_set]
     train_sampler = TaskSampler(train_set, n_way=n_way, n_shot=n_shot, n_query=n_query, n_tasks=train_tasks)
