@@ -42,7 +42,7 @@ class Network(nn.Module):
 
 data_path = st.text_input("Enter the path of the data set")
 split_ratio = col1.slider("Train-Test split ratio")/100
-image_size = st.number_input("Select an image size for data augmentation", step=1, min_value=100, max_value=512)
+image_size = st.number_input("Image size for Data augmentation", step=1, min_value=100, max_value=512)
 
 
 transform = transforms.Compose([
@@ -52,11 +52,11 @@ transform = transforms.Compose([
     transforms.ToTensor()
 ])
 
-n_way = col2.slider("Number Of Unique Classes in the dataset", max_value=40, min_value=2)
-n_shot = col2.number_input("Number Of Images of each Class in the Support Set", step=1)
-n_query = col2.number_input("Number Of Images of each Class in the Query Set", step=1)
-train_tasks = col1.number_input("Number Of Episodes in the Train Set", step=1)
-test_tasks = col1.number_input("Number Of Episodes in the Test Set", step=1)
+n_way = col2.slider("Unique Classes in the dataset", max_value=40, min_value=2)
+n_shot = col2.number_input("Count of Images in each Class of Support Set", step=1)
+n_query = col2.number_input("Count of Images in each Class of Query Set", step=1)
+train_tasks = col1.number_input("Episodes in the Train Set", step=1)
+test_tasks = col1.number_input("Episodes in the Test Set", step=1)
 learning_rate = 3e-4
 # print(n_way, split_ratio, n_shot)
 try:
