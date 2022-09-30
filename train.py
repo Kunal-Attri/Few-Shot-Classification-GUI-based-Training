@@ -14,6 +14,7 @@ st.title("Train Few Shot classification models in Browser")
 col1, col2 = st.columns(2)
 modelAvailable = False
 test_box = None
+test_image = None
 image = None
 
 
@@ -147,10 +148,13 @@ def evaluate():
 
 if modelAvailable:
     test_box = st.checkbox("Evaluate Model on Test set")
-    image = st.file_uploader("**Model's Output for a single image**")
+    test_image = st.checkbox("Evaluate Model on Single Image Input")
 
 if test_box is True:
     evaluate()
+
+if test_image is True:
+    image = st.file_uploader("**Model's Output for a single image**")
 
 if image is not None:
     image1 = load_img(image)
