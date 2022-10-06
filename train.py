@@ -190,7 +190,7 @@ if test_box:
 if modelAvailable:
     image = st.file_uploader("*Model's Output for a single image*")
 if image is not None:
-    with st.spinner("Evaluating on Test set..."):
+    with st.spinner("Evaluating on Image..."):
         evaluate_image(image)
 
 if modelAvailable:
