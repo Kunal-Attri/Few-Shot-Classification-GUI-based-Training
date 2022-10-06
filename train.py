@@ -63,7 +63,7 @@ class Network(nn.Module):
         return -dist
 
 
-path = st.file_uploader("Input Dataset")
+path = st.file_uploader("Input Dataset", type="zip")
 split_ratio = col1.slider("Train-Test split ratio") / 100
 image_size = st.number_input("Image size for Data augmentation", step=1, min_value=100, max_value=512)
 
@@ -132,7 +132,7 @@ def train_model():
                 "model_state_dict": model.state_dict(),
                 "Episode_num": i
             }, "Few_shot_model.pth.tar")
-
+    shutil.copy2("Few_shot_model.pth.tar", "model.pth.tar")
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
 
@@ -171,10 +171,12 @@ def evaluate():
 
 if modelAvailable:
     test_box = st.button("Evaluate Model on Test set")
-    image = st.file_uploader("*Model's Output for a single image*")
 
 if test_box:
     evaluate()
+
+if modelAvailable:
+    image = st.file_uploader("*Model's Output for a single image*")
 
 if image is not None:
     image1 = load_img(image)
@@ -188,5 +190,4 @@ if image is not None:
 
 if modelAvailable:
     st.download_button("Download Model",
-                       data=open("Few_shot_model.pth.tar", 'rb'),
-                       file_name="model.pth.tar")
+                       data=open("model.pth.tar", 'rb'))
