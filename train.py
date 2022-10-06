@@ -14,8 +14,6 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.models import resnet18
 
-st.title("Train Few Shot classification models in Browser")
-col1, col2 = st.columns(2)
 test_box = None
 test_image = None
 image = None
@@ -23,26 +21,8 @@ train = None
 train_loader = None
 modelAvailable = False
 data_path = None
-
-
-def isModelAvailable():
-    global modelAvailable
-    modelAvailable = os.path.exists("Few_shot_model.pth.tar")
-
-
-def removeFiles():
-    if os.path.exists("train"):
-        shutil.rmtree("train")
-    if os.path.exists("Few_shot_model.pth.tar"):
-        os.remove("Few_shot_model.pth.tar")
-
-
-isModelAvailable()
-
-
-def load_img(image_to_load):
-    img = Image.open(image_to_load)
-    return img
+image_size = None
+learning_rate = 3e-4
 
 
 class Network(nn.Module):
@@ -63,54 +43,23 @@ class Network(nn.Module):
         return -dist
 
 
-path = st.file_uploader("Input Dataset", type="zip")
-split_ratio = col1.slider("Train-Test split ratio") / 100
-image_size = st.number_input("Image size for Data augmentation", step=1, min_value=100, max_value=512)
+def isModelAvailable():
+    global modelAvailable
+    modelAvailable = os.path.exists("Few_shot_model.pth.tar")
 
-transform = transforms.Compose([
-    transforms.Resize([image_size, image_size]),
-    transforms.RandomRotation(15),
-    transforms.RandomHorizontalFlip(p=0.1),
-    transforms.ToTensor()
-])
 
-n_way = col2.slider("Unique Classes in the dataset", max_value=40, min_value=2)
-n_shot = col2.number_input("Count of Images in each Class of Support Set", step=1)
-n_query = col2.number_input("Count of Images in each Class of Query Set", step=1)
-train_tasks = col1.number_input("Episodes in the Train Set", step=1)
-test_tasks = col1.number_input("Episodes in the Test Set", step=1)
-learning_rate = 3e-4
+def removeFiles():
+    global modelAvailable
+    if os.path.exists("train"):
+        shutil.rmtree("train")
+    if os.path.exists("Few_shot_model.pth.tar"):
+        os.remove("Few_shot_model.pth.tar")
+    modelAvailable = False
 
-if path is not None:
-    open('tempzip.zip', 'wb').write(path.getvalue())
-    with zipfile.ZipFile("tempzip.zip", "r") as zip_ref:
-        zip_ref.extractall("")
-    os.remove("tempzip.zip")
-    data_path = path.name[:-4]
-else:
-    removeFiles()
 
-if data_path is not None:
-    data = Datasets.ImageFolder(root=data_path, transform=transform)
-    split_list = [int(split_ratio * len(data)), len(data) - int(split_ratio * len(data))]
-    train_set, test_set = torch.utils.data.random_split(dataset=data, lengths=split_list)
-
-    train_set.get_labels = lambda: [i[1] for i in train_set]
-    train_sampler = TaskSampler(train_set, n_way=n_way, n_shot=n_shot, n_query=n_query, n_tasks=train_tasks)
-    train_loader = DataLoader(dataset=train_set, batch_sampler=train_sampler,
-                              collate_fn=train_sampler.episodic_collate_fn, pin_memory=True)
-
-    test_set.get_labels = lambda: [i[1] for i in test_set]
-    test_sampler = TaskSampler(dataset=test_set, n_way=n_way, n_shot=n_shot, n_query=n_query, n_tasks=test_tasks)
-    test_loader = DataLoader(test_set, batch_sampler=test_sampler,
-                             collate_fn=test_sampler.episodic_collate_fn, pin_memory=True)
-
-backbone = resnet18(pretrained=True)
-backbone.fc = nn.Flatten()
-model = Network(pretrained_model=backbone)
-
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+def load_img(image_to_load):
+    img = Image.open(image_to_load)
+    return img
 
 
 def train_model():
@@ -141,20 +90,6 @@ def train_model():
     ax.set_ylabel("Training Loss")
 
     st.write(fig)
-    isModelAvailable()
-
-
-if train_loader is not None:
-    train = st.button("Train model")
-if train:
-    train_model()
-
-if modelAvailable:
-    checkpoint = torch.load("Few_shot_model.pth.tar", map_location=torch.device('cpu'))
-    model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optim_state_dict'])
-    episode_num = checkpoint['Episode_num']
-    loss = checkpoint['loss']
 
 
 def evaluate():
@@ -169,18 +104,84 @@ def evaluate():
         st.write(f"Model tested on {len(test_loader)} tasks with Accuracy of {correct * 100 / total} %")
 
 
+transform = transforms.Compose([
+    transforms.Resize([image_size, image_size]),
+    transforms.RandomRotation(15),
+    transforms.RandomHorizontalFlip(p=0.1),
+    transforms.ToTensor()
+])
+
+
+st.title("Train Few Shot classification models in Browser")
+col1, col2 = st.columns(2)
+
+split_ratio = col1.slider("Train-Test split ratio") / 100
+train_tasks = col1.number_input("Episodes in the Train Set", step=1)
+test_tasks = col1.number_input("Episodes in the Test Set", step=1)
+n_way = col2.slider("Unique Classes in the dataset", max_value=40, min_value=2)
+n_shot = col2.number_input("Count of Images in each Class of Support Set", step=1)
+n_query = col2.number_input("Count of Images in each Class of Query Set", step=1)
+
+path = st.file_uploader("Input Dataset", type="zip")
+image_size = st.number_input("Image size for Data augmentation", step=1, min_value=100, max_value=512)
+
+isModelAvailable()
+
+if path is not None:
+    open('tempzip.zip', 'wb').write(path.getvalue())
+    with zipfile.ZipFile("tempzip.zip", "r") as zip_ref:
+        zip_ref.extractall("")
+    os.remove("tempzip.zip")
+    os.rename(path.name[:-4], "train")
+    data_path = "train"
+else:
+    removeFiles()
+
+if data_path is not None:
+    data = Datasets.ImageFolder(root=data_path, transform=transform)
+    split_list = [int(split_ratio * len(data)), len(data) - int(split_ratio * len(data))]
+    train_set, test_set = torch.utils.data.random_split(dataset=data, lengths=split_list)
+
+    train_set.get_labels = lambda: [i[1] for i in train_set]
+    train_sampler = TaskSampler(train_set, n_way=n_way, n_shot=n_shot, n_query=n_query, n_tasks=train_tasks)
+    train_loader = DataLoader(dataset=train_set, batch_sampler=train_sampler,
+                              collate_fn=train_sampler.episodic_collate_fn, pin_memory=True)
+
+    test_set.get_labels = lambda: [i[1] for i in test_set]
+    test_sampler = TaskSampler(dataset=test_set, n_way=n_way, n_shot=n_shot, n_query=n_query, n_tasks=test_tasks)
+    test_loader = DataLoader(test_set, batch_sampler=test_sampler,
+                             collate_fn=test_sampler.episodic_collate_fn, pin_memory=True)
+
+backbone = resnet18(pretrained=True)
+backbone.fc = nn.Flatten()
+model = Network(pretrained_model=backbone)
+
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+if train_loader is not None:
+    train = st.button("Train model")
+if train:
+    with st.spinner("Training Model..."):
+        train_model()
+
+if modelAvailable:
+    checkpoint = torch.load("Few_shot_model.pth.tar", map_location=torch.device('cpu'))
+    model.load_state_dict(checkpoint['model_state_dict'])
+    optimizer.load_state_dict(checkpoint['optim_state_dict'])
+    episode_num = checkpoint['Episode_num']
+    loss = checkpoint['loss']
+
 if modelAvailable:
     test_box = st.button("Evaluate Model on Test set")
-
 if test_box:
-    evaluate()
+    with st.spinner("Evaluating on Test set..."):
+        evaluate()
 
 if modelAvailable:
     image = st.file_uploader("*Model's Output for a single image*")
-
 if image is not None:
     image1 = load_img(image)
-    # print(image1.shape)
     for i, (support_images, support_labels, _, query_labels, _) in enumerate(train_loader):
         image1 = transform(image1.convert('RGB'))
         image1 = image1.repeat(n_way * n_query, 1, 1, 1)
