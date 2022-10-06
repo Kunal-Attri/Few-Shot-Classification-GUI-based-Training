@@ -1,5 +1,6 @@
 # Few Shot Classification GUI-based Training
 ### Demo: [Youtube](https://www.youtube.com/watch?v=R2ovFf9S4L8)
+### Try at: [Streamlit](https://kunal-attri-few-shot-classification-gui-based-trai-train-iw8gcq.streamlitapp.com/)
 - This is a [Streamlit](https://streamlit.io/) based tool to train and develop a [Few Shot Classification](https://neptune.ai/blog/understanding-few-shot-learning-in-computer-vision) ML model very rapidly. 
 - It uses [Prototypical Networks](https://towardsdatascience.com/few-shot-learning-with-prototypical-networks-87949de03ccd) with [Resnet18](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet18.html) as the backbone network.
 - During training, model parameters are also saved on disk.
@@ -20,7 +21,7 @@
 	- Image transformations
 2. [Omniglot Data set](https://github.com/brendenlake/omniglot) - for Demo - It is designed for developing more human-like learning algorithms. It contains 1623 different handwritten characters from 50 different alphabets. Each of the 1623 characters was drawn online via Amazon's Mechanical Turk by 20 different people. 
 3. [Streamlit](https://streamlit.io/) - for GUI - Streamlit is an open-source app framework for Machine Learning and Data Science teams.
-3. [Matplotlib](https://matplotlib.org/) - for plotting loss function - Matplotlib is a comprehensive library for creating static, animated, and interactive visualizations in Python. Matplotlib makes easy things easy and hard things possible.
+4. [Matplotlib](https://matplotlib.org/) - for plotting loss function - Matplotlib is a comprehensive library for creating static, animated, and interactive visualizations in Python. Matplotlib makes easy things easy and hard things possible.
 
 ## How to run the program?
 1. **Download this GitHub repository**
@@ -44,11 +45,10 @@
 	*Expected Interface:*
 	<br><img src="images/interface.png?raw=true">
 4. **Preparing the Data set**
-	- Download [omniglot_dataset](https://github.com/brendenlake/omniglot/raw/master/python/images_background.zip): It has the full [Omniglot Data set](https://github.com/brendenlake/omniglot) which has characters of 30 different languages.
-	- [train](train) folder has only 2 sub-directories (each sub-directory represents a class - Bengali, Braille). Sub-directories can have any no. of more sub-directories. This directory will be used for demo training of this project.
-		- To make your custom data set, delete sub-directories from train folder.
-		- Then, create sub-folders(which will essentially represent different classes), and then put images for those classes in those sub-folders.
+	- To try: Download [omniglot_dataset](https://github.com/brendenlake/omniglot/raw/master/python/images_background.zip): It has the full [Omniglot Data set](https://github.com/brendenlake/omniglot) which has characters of 30 different languages.
+	- Create a folder, then sub-folders(which will essentially represent different classes), and then put images for those classes in those sub-folders.
 		- It's a good idea to keep no. of images for N classes to be almost equal if not exactly equal. They must be quality images as per ML standards.
+        - Then, zip the main folder!
 5. **Training model on the data set**
 	+ Set parameters. Unless, you have your own data set, you can try demo values.
 		+ *Train-test split ratio*: That is the ratio in which you want to divide your data set for training and testing phases. Generally 60 to 90 percent is a good ratio. For demo: 75 %
