@@ -30,7 +30,7 @@ def isModelAvailable():
 
 
 if os.path.exists("train"):
-    shutil.rmtree("tree")
+    shutil.rmtree("train")
 if os.path.exists("Few_shot_model.pth.tar"):
     os.remove("Few_shot_model.pth.tar")
 data_path = None
