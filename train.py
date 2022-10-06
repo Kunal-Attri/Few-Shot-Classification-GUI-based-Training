@@ -16,10 +16,11 @@ modelAvailable = False
 test_box = None
 test_image = None
 image = None
+train_loader = None
 
 
-def load_img(image):
-    img = Image.open(image)
+def load_img(image_to_load):
+    img = Image.open(image_to_load)
     return img
 
 
@@ -74,7 +75,7 @@ try:
     test_sampler = TaskSampler(dataset=test_set, n_way=n_way, n_shot=n_shot, n_query=n_query, n_tasks=test_tasks)
     test_loader = DataLoader(test_set, batch_sampler=test_sampler,
                              collate_fn=test_sampler.episodic_collate_fn, pin_memory=True)
-except:
+except Exception:
     print("Please enter dataset path")
 
 
@@ -120,6 +121,9 @@ def train_model():
 train = st.checkbox("Train model")
 if train is True:
     train_model()
+    st.download_button("Download Model",
+                       data=open("Few_shot_model.pth.tar", 'rb'),
+                       file_name="model.pth.tar")
 
 try:
     checkpoint = torch.load("Few_shot_model.pth.tar", map_location=torch.device('cpu'))
@@ -128,10 +132,14 @@ try:
     episode_num = checkpoint['Episode_num']
     loss = checkpoint['loss']
     modelAvailable = True
-except:
+except Exception:
     print("Model not available")
     modelAvailable = False
 
+if modelAvailable:
+    st.download_button("Download Model",
+                       data=open("Few_shot_model.pth.tar", 'rb'),
+                       file_name="model.pth.tar")
 
 def evaluate():
     model.eval()
