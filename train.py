@@ -22,6 +22,7 @@ image = None
 train = None
 train_loader = None
 modelAvailable = False
+data_path = None
 
 
 def isModelAvailable():
@@ -29,11 +30,12 @@ def isModelAvailable():
     modelAvailable = os.path.exists("Few_shot_model.pth.tar")
 
 
-if os.path.exists("train"):
-    shutil.rmtree("train")
-if os.path.exists("Few_shot_model.pth.tar"):
-    os.remove("Few_shot_model.pth.tar")
-data_path = None
+def removeFiles():
+    if os.path.exists("train"):
+        shutil.rmtree("train")
+    if os.path.exists("Few_shot_model.pth.tar"):
+        os.remove("Few_shot_model.pth.tar")
+
 
 isModelAvailable()
 
@@ -85,6 +87,8 @@ if path is not None:
         zip_ref.extractall("")
     os.remove("tempzip.zip")
     data_path = path.name[:-4]
+else:
+    removeFiles()
 
 if data_path is not None:
     data = Datasets.ImageFolder(root=data_path, transform=transform)
@@ -171,7 +175,6 @@ if modelAvailable:
 
 if test_box:
     evaluate()
-
 
 if image is not None:
     image1 = load_img(image)
