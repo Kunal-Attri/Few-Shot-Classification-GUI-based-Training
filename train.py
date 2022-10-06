@@ -1,22 +1,41 @@
+import os
+import zipfile
+
+import matplotlib.pyplot as plt
+import streamlit as st
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torchvision import transforms
 import torchvision.datasets as Datasets
-from torch.utils.data import DataLoader
-from easyfsl.samplers.task_sampler import TaskSampler
-from torchvision.models import resnet18
-import matplotlib.pyplot as plt
-import streamlit as st
 from PIL import Image
+from easyfsl.samplers.task_sampler import TaskSampler
+from torch.utils.data import DataLoader
+from torchvision import transforms
+from torchvision.models import resnet18
 
 st.title("Train Few Shot classification models in Browser")
 col1, col2 = st.columns(2)
-modelAvailable = False
 test_box = None
 test_image = None
 image = None
+train = None
 train_loader = None
+modelAvailable = False
+
+
+def isModelAvailable():
+    global modelAvailable
+    modelAvailable = os.path.exists("Few_shot_model.pth.tar")
+
+
+if os.path.exists("train"):
+    data_path = "train"
+else:
+    if os.path.exists("Few_shot_model.pth.tar"):
+        os.remove("Few_shot_model.pth.tar")
+    data_path = None
+
+isModelAvailable()
 
 
 def load_img(image_to_load):
@@ -42,10 +61,9 @@ class Network(nn.Module):
         return -dist
 
 
-data_path = st.text_input("Enter the path of the data set")
-split_ratio = col1.slider("Train-Test split ratio")/100
+path = st.file_uploader("Input Dataset")
+split_ratio = col1.slider("Train-Test split ratio") / 100
 image_size = st.number_input("Image size for Data augmentation", step=1, min_value=100, max_value=512)
-
 
 transform = transforms.Compose([
     transforms.Resize([image_size, image_size]),
@@ -61,7 +79,14 @@ train_tasks = col1.number_input("Episodes in the Train Set", step=1)
 test_tasks = col1.number_input("Episodes in the Test Set", step=1)
 learning_rate = 3e-4
 
-try:
+if path is not None:
+    open('tempzip.zip', 'wb').write(path.getvalue())
+    with zipfile.ZipFile("tempzip.zip", "r") as zip_ref:
+        zip_ref.extractall("")
+    os.remove("tempzip.zip")
+    data_path = path.name[:-4]
+
+if data_path is not None:
     data = Datasets.ImageFolder(root=data_path, transform=transform)
     split_list = [int(split_ratio * len(data)), len(data) - int(split_ratio * len(data))]
     train_set, test_set = torch.utils.data.random_split(dataset=data, lengths=split_list)
@@ -75,9 +100,6 @@ try:
     test_sampler = TaskSampler(dataset=test_set, n_way=n_way, n_shot=n_shot, n_query=n_query, n_tasks=test_tasks)
     test_loader = DataLoader(test_set, batch_sampler=test_sampler,
                              collate_fn=test_sampler.episodic_collate_fn, pin_memory=True)
-except Exception:
-    print("Please enter dataset path")
-
 
 backbone = resnet18(pretrained=True)
 backbone.fc = nn.Flatten()
@@ -97,9 +119,8 @@ def train_model():
         loss.backward()
         optimizer.step()
 
-        if (i+1) % (len(train_loader)*0.25) == 0 and i + 1 >= (len(train_loader)*0.25):
-            # print(i+1, len(train_loader), "Training loss:", loss)
-            st.write(100*(i + 1)/len(train_loader), "% Training completed", "Training loss:", loss,
+        if (i + 1) % (len(train_loader) * 0.25) == 0 and i + 1 >= (len(train_loader) * 0.25):
+            st.write(100 * (i + 1) / len(train_loader), "% Training completed", "Training loss:", loss,
                      " Model weights saved")
             torch.save({
                 'optim_state_dict': optimizer.state_dict(),
@@ -116,30 +137,21 @@ def train_model():
     ax.set_ylabel("Training Loss")
 
     st.write(fig)
+    isModelAvailable()
 
 
-train = st.checkbox("Train model")
-if train is True:
+if train_loader is not None:
+    train = st.button("Train model")
+if train:
     train_model()
-    st.download_button("Download Model",
-                       data=open("Few_shot_model.pth.tar", 'rb'),
-                       file_name="model.pth.tar")
 
-try:
+if modelAvailable:
     checkpoint = torch.load("Few_shot_model.pth.tar", map_location=torch.device('cpu'))
     model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optim_state_dict'])
     episode_num = checkpoint['Episode_num']
     loss = checkpoint['loss']
-    modelAvailable = True
-except Exception:
-    print("Model not available")
-    modelAvailable = False
 
-if modelAvailable:
-    st.download_button("Download Model",
-                       data=open("Few_shot_model.pth.tar", 'rb'),
-                       file_name="model.pth.tar")
 
 def evaluate():
     model.eval()
@@ -150,18 +162,16 @@ def evaluate():
             out = model(support_images, support_labels, query_images)
             correct += (torch.max(out, 1)[1] == query_labels).sum().item()
             total += len(query_labels)
-        st.write(f"Model tested on {len(test_loader)} tasks with Accuracy of {correct*100/total} %")
+        st.write(f"Model tested on {len(test_loader)} tasks with Accuracy of {correct * 100 / total} %")
 
 
 if modelAvailable:
-    test_box = st.checkbox("Evaluate Model on Test set")
-    test_image = st.checkbox("Evaluate Model on Single Image Input")
+    test_box = st.button("Evaluate Model on Test set")
+    image = st.file_uploader("*Model's Output for a single image*")
 
-if test_box is True:
+if test_box:
     evaluate()
 
-if test_image is True:
-    image = st.file_uploader("**Model's Output for a single image**")
 
 if image is not None:
     image1 = load_img(image)
@@ -170,5 +180,10 @@ if image is not None:
         image1 = transform(image1.convert('RGB'))
         image1 = image1.repeat(n_way * n_query, 1, 1, 1)
         out = model(support_images, support_labels, image1)
-        st.write("Image belongs to class: "+str(max((torch.max(out, 1)[1])).item()))
+        st.write("Image belongs to class: " + str(max((torch.max(out, 1)[1])).item()))
         break
+
+if modelAvailable:
+    st.download_button("Download Model",
+                       data=open("Few_shot_model.pth.tar", 'rb'),
+                       file_name="model.pth.tar")

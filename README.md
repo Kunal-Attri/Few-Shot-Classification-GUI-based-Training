@@ -44,11 +44,11 @@
 	*Expected Interface:*
 	<br><img src="images/interface.png?raw=true">
 4. **Preparing the Data set**
-	- [omniglot_dataset](omniglot) directory has the full [Omniglot Data set](https://github.com/brendenlake/omniglot) which has characters of 30 different languages.
-	- [train](train) folder has only 2 sub-directories (each sub-directory represents a class - Bengali, Gujrati). Sub-directories can have any no. of more sub-directories. This directory will be used for demo training of this project.
+	- Download [omniglot_dataset](https://github.com/brendenlake/omniglot/raw/master/python/images_background.zip): It has the full [Omniglot Data set](https://github.com/brendenlake/omniglot) which has characters of 30 different languages.
+	- [train](train) folder has only 2 sub-directories (each sub-directory represents a class - Bengali, Braille). Sub-directories can have any no. of more sub-directories. This directory will be used for demo training of this project.
 		- To make your custom data set, delete sub-directories from train folder.
 		- Then, create sub-folders(which will essentially represent different classes), and then put images for those classes in those sub-folders.
-		- It's a good idea to keep no. of images for N classes to be almost equal if not exactly equal. They must quality images as per ML standards.
+		- It's a good idea to keep no. of images for N classes to be almost equal if not exactly equal. They must be quality images as per ML standards.
 5. **Training model on the data set**
 	+ Set parameters. Unless, you have your own data set, you can try demo values.
 		+ *Train-test split ratio*: That is the ratio in which you want to divide your data set for training and testing phases. Generally 60 to 90 percent is a good ratio. For demo: 75 %
