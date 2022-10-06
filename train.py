@@ -1,4 +1,5 @@
 import os
+import shutil
 import zipfile
 
 import matplotlib.pyplot as plt
@@ -29,11 +30,10 @@ def isModelAvailable():
 
 
 if os.path.exists("train"):
-    data_path = "train"
-else:
-    if os.path.exists("Few_shot_model.pth.tar"):
-        os.remove("Few_shot_model.pth.tar")
-    data_path = None
+    shutil.rmtree("tree")
+if os.path.exists("Few_shot_model.pth.tar"):
+    os.remove("Few_shot_model.pth.tar")
+data_path = None
 
 isModelAvailable()
 
