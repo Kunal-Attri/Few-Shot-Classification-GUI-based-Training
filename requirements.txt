@@ -3,3 +3,4 @@ torchvision
 easyfsl
 matplotlib
 streamlit
+Pillow

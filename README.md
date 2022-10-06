@@ -11,6 +11,7 @@
 - [easyfsl](https://pypi.org/project/easyfsl/)
 - [matplotlib](https://pypi.org/project/matplotlib/)
 - [streamlit](https://pypi.org/project/streamlit/)
+- [pillow](https://pypi.org/project/Pillow/)
 
 ## What I used?
 1. [PyTorch](https://pytorch.org/) - An open source machine learning framework that accelerates the path from research prototyping to production deployment.
@@ -41,7 +42,7 @@
 	streamlit run train.py
 	```
 	*Expected Interface:*
-	<img src="https://github.com/Kunal-Attri/Few-Shot-Classification-GUI-based-Training/blob/main/images/interface.png?raw=true">
+	<br><img src="images/interface.png?raw=true">
 4. **Preparing the Data set**
 	- [omniglot_dataset](omniglot) directory has the full [Omniglot Data set](https://github.com/brendenlake/omniglot) which has characters of 30 different languages.
 	- [train](train) folder has only 2 sub-directories (each sub-directory represents a class - Bengali, Gujrati). Sub-directories can have any no. of more sub-directories. This directory will be used for demo training of this project.
@@ -59,23 +60,23 @@
 		+ *Data set Path*: It refers to the location at which data set is located. It can be either relative or absolute path. For demo: train
 		+ *Image size for Data augmentation*: That refers to the transformed size of images for training and testing. Low data -> Low res, else higher res. For demo: 100
 	+ *Demo Parameters:*
-	<img src="https://github.com/Kunal-Attri/Few-Shot-Classification-GUI-based-Training/blob/main/images/demo_parameters.png?raw=true"><br>
+	<br><img src="images/demo_parameters.png?raw=true"><br>
 	+ Then check the Train Model checkbox. It will now train the model. Should take 3-7 minutes. Model is saved every 25 % of model training progress, and we also get the Training Loss plot vs Episodes.
 	+ *Trained Model:* 
-	<img src="https://github.com/Kunal-Attri/Few-Shot-Classification-GUI-based-Training/blob/main/images/trained.png?raw=true"><br><br>
+	<br><img src="images/trained.png?raw=true"><br><br>
 	- NOTE: While setting parameters Don't set too high values or too low values, as it can cause [Overfitting or Underfitting](https://www.geeksforgeeks.org/underfitting-and-overfitting-in-machine-learning/) respectively.
 6. **Testing Model on Test Set**
 	- Uncheck the Train Model checkbox.
 	- And, check the *Evaluate Model on Test Set* checkbox. This will now test the model on Test set from the data set.
 	- After evaluation, it will give the Accuracy on test set as the output. Here, our model has 97.6% accuracy!!!
 	- *Evaluation on Test set:*
-	<img src="https://github.com/Kunal-Attri/Few-Shot-Classification-GUI-based-Training/blob/main/images/evaluation_testset.png?raw=true"><br><br>
+	<br><img src="images/evaluation_testset.png?raw=true"><br><br>
 7. **Testing Model on Custom Image Input**
 	- Uncheck all checkboxes.
 	- Check the *Evaluate Model on Single Image Input* checkbox. This will enable a image upload bar.
 	- You can now drag-n-drop a image or upload one, to get predicted output from the model.
 	- *Evaluation on Image:*
-	<img src="https://github.com/Kunal-Attri/Few-Shot-Classification-GUI-based-Training/blob/main/images/evaluation_image.png?raw=true"><br><br>
+	<br><img src="images/evaluation_image.png?raw=true"><br><br>
 
 ## References
 - [Few Shot Classification](https://neptune.ai/blog/understanding-few-shot-learning-in-computer-vision)
