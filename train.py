@@ -15,13 +15,12 @@ from torchvision import transforms
 from torchvision.models import resnet18
 
 test_box = None
-test_image = None
 image = None
 train = None
 train_loader = None
 modelAvailable = False
 data_path = None
-image_size = None
+image_size = 100
 learning_rate = 3e-4
 
 
@@ -104,6 +103,16 @@ def evaluate():
         st.write(f"Model tested on {len(test_loader)} tasks with Accuracy of {correct * 100 / total} %")
 
 
+def evaluate_image(image1):
+    image1 = load_img(image1)
+    for i, (support_images, support_labels, _, query_labels, _) in enumerate(train_loader):
+        image1 = transform(image1.convert('RGB'))
+        image1 = image1.repeat(n_way * n_query, 1, 1, 1)
+        out = model(support_images, support_labels, image1)
+        st.write("Image belongs to class: " + str(max((torch.max(out, 1)[1])).item()))
+        break
+
+
 transform = transforms.Compose([
     transforms.Resize([image_size, image_size]),
     transforms.RandomRotation(15),
@@ -124,8 +133,6 @@ n_query = col2.number_input("Count of Images in each Class of Query Set", step=1
 
 path = st.file_uploader("Input Dataset", type="zip")
 image_size = st.number_input("Image size for Data augmentation", step=1, min_value=100, max_value=512)
-
-isModelAvailable()
 
 if path is not None:
     open('tempzip.zip', 'wb').write(path.getvalue())
@@ -165,6 +172,8 @@ if train:
     with st.spinner("Training Model..."):
         train_model()
 
+isModelAvailable()
+
 if modelAvailable:
     checkpoint = torch.load("Few_shot_model.pth.tar", map_location=torch.device('cpu'))
     model.load_state_dict(checkpoint['model_state_dict'])
@@ -181,14 +190,10 @@ if test_box:
 if modelAvailable:
     image = st.file_uploader("*Model's Output for a single image*")
 if image is not None:
-    image1 = load_img(image)
-    for i, (support_images, support_labels, _, query_labels, _) in enumerate(train_loader):
-        image1 = transform(image1.convert('RGB'))
-        image1 = image1.repeat(n_way * n_query, 1, 1, 1)
-        out = model(support_images, support_labels, image1)
-        st.write("Image belongs to class: " + str(max((torch.max(out, 1)[1])).item()))
-        break
+    with st.spinner("Evaluating on Test set..."):
+        evaluate_image(image)
 
 if modelAvailable:
     st.download_button("Download Model",
-                       data=open("model.pth.tar", 'rb'))
+                       data=open("model.pth.tar", 'rb'),
+                       file_name="model.pth.tar")
