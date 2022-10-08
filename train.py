@@ -65,18 +65,18 @@ def train_model():
     loss_list = []
     for i, (support_images, support_labels, query_images, query_labels, _) in enumerate(train_loader):
         out = model(support_images, support_labels, query_images)
-        loss = criterion(out, query_labels)
-        loss_list.append(loss.item())
+        m_loss = criterion(out, query_labels)
+        loss_list.append(m_loss.item())
         optimizer.zero_grad()
-        loss.backward()
+        m_loss.backward()
         optimizer.step()
 
         if (i + 1) % (len(train_loader) * 0.25) == 0 and i + 1 >= (len(train_loader) * 0.25):
-            st.write(100 * (i + 1) / len(train_loader), "% Training completed", "Training loss:", loss,
+            st.write(100 * (i + 1) / len(train_loader), "% Training completed", "Training loss:", m_loss,
                      " Model weights saved")
             torch.save({
                 'optim_state_dict': optimizer.state_dict(),
-                "loss": loss,
+                "loss": m_loss,
                 "model_state_dict": model.state_dict(),
                 "Episode_num": i
             }, "Few_shot_model.pth.tar")
