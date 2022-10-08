@@ -1,6 +1,6 @@
-torch
-torchvision
-easyfsl
-matplotlib
-streamlit
-Pillow
+matplotlib==3.6.1
+streamlit~=1.13.0
+torch~=1.12.1
+torchvision~=0.13.1
+Pillow~=9.2.0
+easyfsl~=1.1.0
